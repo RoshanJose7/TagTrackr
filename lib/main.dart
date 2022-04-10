@@ -45,7 +45,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _curIdx = 0;
-  final _pages = const [
+  final List<Widget> _pages = const [
     ScanDevicesPage(),
     AllDevicesPage(),
   ];

@@ -102,7 +102,7 @@ class DeviceCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            "long" + device.position.longitude.toString(),
+                            "long: " + device.position.longitude.toString(),
                             style: const TextStyle(
                               color: Colors.black54,
                             ),

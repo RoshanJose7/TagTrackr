@@ -86,12 +86,12 @@ class AllDevicesPage extends StatelessWidget {
             ],
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+            padding: const EdgeInsets.all(10),
             child: SizedBox(
               height: _media.size.height * 0.7,
               child: _globalstate.devices.isEmpty
                   ? const Center(
-                      child: Text("No Devices Found!"),
+                      child: Text("No Devices Registered!"),
                     )
                   : ListView.builder(
                       itemCount: _globalstate.devices.length,

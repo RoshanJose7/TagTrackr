@@ -151,7 +151,9 @@ class _AddDevicePageState extends State<AddDevicePage> {
               ),
             );
 
-            Position pos = await determinelocation();
+            Position pos = await determineLocation();
+            print(pos);
+
             _formKey.currentState?.save();
 
             DeviceData newDevice =

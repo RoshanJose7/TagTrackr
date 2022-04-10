@@ -88,8 +88,7 @@ class _ScanDevicesPageState extends State<ScanDevicesPage> {
             SizedBox(
               height: _media.size.height * 0.8,
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                padding: const EdgeInsets.all(10),
                 child: _devices.isEmpty
                     ? const Center(
                         child: Text("No Devices Found Yet!"),
