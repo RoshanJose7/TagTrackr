@@ -18,7 +18,7 @@ Future<String?> get downloadDirPath async {
 }
 
 Future<File> createFile(String path, String fileName, String data) async {
-  File jsonFile = File("$path/$fileName.json");
+  File jsonFile = File("$path/$fileName");
   if (!(await jsonFile.exists())) await jsonFile.create();
 
   return await jsonFile.writeAsString(data);

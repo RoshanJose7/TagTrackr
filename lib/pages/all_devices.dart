@@ -4,8 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:flutter_share/flutter_share.dart';
 
 import 'package:rfid_reader/utils/getfiles.dart';
+import 'package:rfid_reader/utils/permission.dart';
 import 'package:rfid_reader/pages/add_device.dart';
 import 'package:rfid_reader/providers/globalstate.dart';
+import 'package:rfid_reader/widgets/device_card.dart';
 
 class AllDevicesPage extends StatelessWidget {
   const AllDevicesPage({Key? key}) : super(key: key);
@@ -13,8 +15,9 @@ class AllDevicesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _globalstate = Provider.of<GlobalStateProvider>(context);
+    final _media = MediaQuery.of(context);
 
-    Future<void> share() async {
+    Future<void> _share() async {
       String? path = await downloadDirPath;
 
       if (path != null) {
@@ -31,11 +34,25 @@ class AllDevicesPage extends StatelessWidget {
       }
     }
 
+    Future<void> _add() async {
+      bool status = await getLocationPermission();
+
+      if (!status) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text("Grant Location Access to move forward!")));
+
+        return;
+      }
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const AddDevicePage(),
+        ),
+      );
+    }
+
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 10,
-        horizontal: 20,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -52,20 +69,14 @@ class AllDevicesPage extends StatelessWidget {
               Row(
                 children: [
                   IconButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const AddDevicePage(),
-                        ),
-                      );
-                    },
+                    onPressed: _add,
                     icon: const Icon(Icons.add),
                     color: Colors.blueAccent,
                     splashColor: Colors.grey[400],
                   ),
                   const SizedBox(width: 10),
                   IconButton(
-                    onPressed: share,
+                    onPressed: _share,
                     icon: const Icon(Icons.share),
                     color: Colors.blueAccent,
                     splashColor: Colors.grey[400],
@@ -74,63 +85,20 @@ class AllDevicesPage extends StatelessWidget {
               ),
             ],
           ),
-          _globalstate.devices.isEmpty
-              ? const Center(
-                  child: Text("No Devices Found!"),
-                )
-              : Expanded(
-                  child: ListView.builder(
-                    itemCount: _globalstate.devices.length,
-                    itemBuilder: (ctx, idx) => Card(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 20,
-                          horizontal: 30,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Id: " + _globalstate.devices[idx].id),
-                            Text("Name: " + _globalstate.devices[idx].name),
-                            Text(
-                              "TimeStamp: " +
-                                  _globalstate.devices[idx].position.timestamp
-                                      .toString(),
-                            ),
-                            Text(
-                              "Position: " +
-                                  _globalstate.devices[idx].position.latitude
-                                      .toString() +
-                                  ", " +
-                                  _globalstate.devices[idx].position.longitude
-                                      .toString(),
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            SizedBox(
-                              height: 100,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount:
-                                    _globalstate.devices[idx].images.length,
-                                itemBuilder: (ctx, id) {
-                                  return Image(
-                                    height: 100,
-                                    width: 100,
-                                    image: FileImage(
-                                        _globalstate.devices[idx].images[id]),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+            child: SizedBox(
+              height: _media.size.height * 0.7,
+              child: _globalstate.devices.isEmpty
+                  ? const Center(
+                      child: Text("No Devices Found!"),
+                    )
+                  : ListView.builder(
+                      itemCount: _globalstate.devices.length,
+                      itemBuilder: (ctx, idx) => DeviceCard(device: _globalstate.devices[idx]),
                     ),
-                  ),
-                ),
+            ),
+          ),
         ],
       ),
     );

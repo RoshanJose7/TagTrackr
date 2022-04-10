@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:bottom_bar_page_transition/bottom_bar_page_transition.dart';
 
 import 'package:rfid_reader/pages/scan_devices.dart';
 import 'package:rfid_reader/pages/all_devices.dart';
@@ -52,19 +53,34 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("RFID Reader"),
-      ),
-      body: _pages[_curIdx],
-      bottomNavigationBar: BottomNavigationBar(
+      body: BottomBarPageTransition(
+        builder: (ctx, index) => SafeArea(child: _pages[index]),
         currentIndex: _curIdx,
+        totalLength: _pages.length,
+        transitionType: TransitionType.fade,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.white,
+        currentIndex: _curIdx,
+        selectedIconTheme: const IconThemeData(
+          size: 30,
+        ),
+        unselectedIconTheme: const IconThemeData(
+          size: 25,
+        ),
+        showUnselectedLabels: false,
         onTap: (idx) => setState(() {
           _curIdx = idx;
         }),
         items: const [
           BottomNavigationBarItem(
-              icon: Icon(Icons.scanner_rounded), label: "Scan"),
-          BottomNavigationBarItem(icon: Icon(Icons.devices), label: "Devices"),
+            icon: Icon(Icons.scanner_rounded),
+            label: "Scan",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.devices),
+            label: "Devices",
+          ),
         ],
       ),
     );

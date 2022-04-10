@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:rfid_reader/models/device.dart';
 import 'package:rfid_reader/providers/globalstate.dart';
+import 'package:rfid_reader/widgets/device_card.dart';
 
 class ScanDevicesPage extends StatefulWidget {
   const ScanDevicesPage({Key? key}) : super(key: key);
@@ -17,12 +19,13 @@ class _ScanDevicesPageState extends State<ScanDevicesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final _theme = Theme.of(context);
     final _media = MediaQuery.of(context);
     final _globalstate = Provider.of<GlobalStateProvider>(context);
 
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -55,88 +58,45 @@ class _ScanDevicesPageState extends State<ScanDevicesPage> {
                 const Text(
                   "Device List",
                   style: TextStyle(
-                    fontSize: 32,
+                    fontSize: 24,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 _scanMode
-                    ? ElevatedButton(
+                    ? IconButton(
                         onPressed: () => setState(() {
                           _scanMode = false;
                         }),
-                        child: const Text("Stop Scanning"),
+                        icon: const Icon(
+                          Icons.stop_circle_rounded,
+                          color: Colors.red,
+                          size: 30,
+                        ),
                       )
-                    : ElevatedButton(
+                    : IconButton(
                         onPressed: () => setState(() {
                           _scanMode = true;
                         }),
-                        child: const Text("Start Scanning"),
+                        icon: Icon(
+                          Icons.qr_code_scanner_rounded,
+                          color: _theme.primaryColor,
+                          size: 30,
+                        ),
                       ),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: SizedBox(
-                height: _media.size.height * 0.72,
+            SizedBox(
+              height: _media.size.height * 0.8,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: _devices.isEmpty
                     ? const Center(
                         child: Text("No Devices Found Yet!"),
                       )
                     : ListView.builder(
                         itemCount: _devices.length,
-                        itemBuilder: (ctx, idx) => Card(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 20,
-                              horizontal: 30,
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Id: " + _devices[idx].id),
-                                Text("Name: " + _devices[idx].name),
-                                Text(
-                                  "TimeStamp: " +
-                                      _devices[idx]
-                                          .position
-                                          .timestamp
-                                          .toString(),
-                                ),
-                                Text(
-                                  "Position: " +
-                                      _devices[idx]
-                                          .position
-                                          .latitude
-                                          .toString() +
-                                      ", " +
-                                      _devices[idx]
-                                          .position
-                                          .longitude
-                                          .toString(),
-                                ),
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                                SizedBox(
-                                  height: 100,
-                                  child: ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount: _devices[idx].images.length,
-                                    itemBuilder: (ctx, id) {
-                                      return Image(
-                                        height: 100,
-                                        width: 100,
-                                        image:
-                                            FileImage(_devices[idx].images[id]),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                        itemBuilder: (ctx, idx) => DeviceCard(device: _devices[idx]),
                       ),
               ),
             ),
