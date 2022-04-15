@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
 Future<String> get localPath async {
@@ -10,6 +10,7 @@ Future<String> get localPath async {
 
 Future<String?> get downloadDirPath async {
   Directory? directory = Directory('/storage/emulated/0/Download');
+
   if (!await directory.exists()) {
     directory = await getExternalStorageDirectory();
   }
@@ -24,8 +25,8 @@ Future<File> createFile(String path, String fileName, String data) async {
   return await jsonFile.writeAsString(data);
 }
 
-Future<FilePickerResult?> getfiles() async {
-  return await FilePicker.platform.pickFiles(
-    type: FileType.image,
-  );
+Future<List<XFile>?> getFiles() async {
+  final ImagePicker _picker = ImagePicker();
+  final List<XFile>? images = await _picker.pickMultiImage();
+  return images;
 }

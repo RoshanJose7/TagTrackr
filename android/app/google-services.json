@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "674034350224",
+    "project_id": "rfid-reader-d0cd0",
+    "storage_bucket": "rfid-reader-d0cd0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:674034350224:android:9a4e674f9597dad1a48015",
+        "android_client_info": {
+          "package_name": "com.jose7.rfid_reader"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "674034350224-2hpgg4gt20g20oab90oaj83lqhg72duj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAH-jCoSiWyanwtTfMH13VvSHBgMrz86Ws"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "674034350224-2hpgg4gt20g20oab90oaj83lqhg72duj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

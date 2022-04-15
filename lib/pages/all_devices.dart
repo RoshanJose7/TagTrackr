@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_share/flutter_share.dart';
+import 'package:rfid_reader/models/device.dart';
 
 import 'package:rfid_reader/utils/getfiles.dart';
 import 'package:rfid_reader/utils/permission.dart';
@@ -89,14 +91,37 @@ class AllDevicesPage extends StatelessWidget {
             padding: const EdgeInsets.all(10),
             child: SizedBox(
               height: _media.size.height * 0.7,
-              child: _globalstate.devices.isEmpty
-                  ? const Center(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: _globalstate.devicesStream,
+                builder: (ctx, snapshot) {
+                  if (snapshot.hasError) {
+                    print(snapshot.error);
+                    return const Text('Something went wrong');
+                  }
+
+                  print(snapshot.hasData);
+                  print(snapshot.connectionState);
+                  if(snapshot.hasData) {
+                    return snapshot.data!.docs.isEmpty
+                        ? const Center(
                       child: Text("No Devices Registered!"),
                     )
-                  : ListView.builder(
-                      itemCount: _globalstate.devices.length,
-                      itemBuilder: (ctx, idx) => DeviceCard(device: _globalstate.devices[idx]),
-                    ),
+                        : ListView.builder(
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) {
+                        return DeviceCard(
+                            device: snapshot.data!.docs[index]);
+                      },
+                    );
+                  }
+
+                  if(snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  return const Center(child: Text("Unable to find devices!"));
+                },
+              ),
             ),
           ),
         ],
@@ -104,3 +129,12 @@ class AllDevicesPage extends StatelessWidget {
     );
   }
 }
+
+// _globalstate.devices.isEmpty
+// ? const Center(
+// child: Text("No Devices Registered!"),
+// )
+// : ListView.builder(
+// itemCount: _globalstate.devices.length,
+// itemBuilder: (ctx, idx) => DeviceCard(device: _globalstate.devices[idx]),
+// ),

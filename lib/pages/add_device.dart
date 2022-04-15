@@ -1,13 +1,13 @@
 import 'dart:io';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:geolocator/geolocator.dart';
+
 import 'package:rfid_reader/models/device.dart';
-import 'package:rfid_reader/providers/globalstate.dart';
 import 'package:rfid_reader/utils/getfiles.dart';
 import 'package:rfid_reader/utils/location.dart';
+import 'package:rfid_reader/providers/globalstate.dart';
 
 class AddDevicePage extends StatefulWidget {
   const AddDevicePage({Key? key}) : super(key: key);
@@ -20,7 +20,8 @@ class _AddDevicePageState extends State<AddDevicePage> {
   final _formKey = GlobalKey<FormState>();
   String _id = "";
   String _name = "";
-  final List<File> _files = [];
+  String _location = "";
+  final List<String> _files = [];
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +42,11 @@ class _AddDevicePageState extends State<AddDevicePage> {
                   if (val == null || val.isEmpty) {
                     return "Enter a valid id";
                   }
+
+                  if (_globalState.duplicateDeviceCheck(val)) {
+                    return "Device ID already taken";
+                  }
+
                   return null;
                 },
                 onSaved: (val) {
@@ -62,6 +68,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                   if (val == null || val.isEmpty) {
                     return "Enter a valid name";
                   }
+
                   return null;
                 },
                 onSaved: (val) {
@@ -77,29 +84,57 @@ class _AddDevicePageState extends State<AddDevicePage> {
                   labelText: 'Name *',
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    onPressed: () async {
-                      FilePickerResult? res = await getfiles();
+              TextFormField(
+                keyboardType: TextInputType.name,
+                validator: (val) {
+                  if (val == null || val.isEmpty) {
+                    return "Enter a valid tag";
+                  }
 
-                      if (res != null) {
-                        List<File> files =
-                            res.paths.map((path) => File(path!)).toList();
+                  return null;
+                },
+                onSaved: (val) {
+                  if (val != null && val.isNotEmpty) {
+                    setState(() {
+                      _location = val;
+                    });
+                  }
+                },
+                decoration: const InputDecoration(
+                  icon: Icon(Icons.location_on_rounded),
+                  hintText: 'Location Tag?',
+                  labelText: 'Location Tag *',
+                ),
+              ),
+              const SizedBox(height: 20),
+              InkWell(
+                onTap: () async {
+                  List<XFile>? results = await getFiles();
 
-                        setState(() {
-                          _files.addAll(files);
-                        });
+                  if (results != null) {
+                    setState(() {
+                      for(var res in results) {
+                        _files.add(res.path);
                       }
-                    },
-                    icon: const Icon(
+                    });
+                  }
+                },
+                child: Row(
+                  children: [
+                    const Icon(
                       Icons.file_open,
                       color: Colors.grey,
                     ),
-                  ),
-                  const Text("Upload Device Image"),
-                ],
+                    const SizedBox(width: 15),
+                    Text(
+                      "Select Image *",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(
                 height: 50,
@@ -126,14 +161,10 @@ class _AddDevicePageState extends State<AddDevicePage> {
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: _files.length,
-                        itemBuilder: (ctx, idx) {
-                          return Container(
+                        itemBuilder: (ctx, idx) => Container(
                             margin: const EdgeInsets.only(right: 20),
-                            child: Image(
-                              image: FileImage(_files[idx]),
-                            ),
-                          );
-                        },
+                            child: Image.file(File(_files[idx])),
+                          ),
                       ),
                     ),
             ],
@@ -152,12 +183,14 @@ class _AddDevicePageState extends State<AddDevicePage> {
             );
 
             Position pos = await determineLocation();
-            print(pos);
-
             _formKey.currentState?.save();
 
             DeviceData newDevice =
-                DeviceData(id: _id, name: _name, position: pos, images: _files);
+                DeviceData(id: _id, name: _name, location: _location, position: GeoPosition(
+                  latitude: pos.latitude,
+                  longitude: pos.longitude,
+                  timestamp: DateTime.now(),
+                ), images: _files);
             _globalState.addDevice(newDevice);
 
             ScaffoldMessenger.of(context).showSnackBar(

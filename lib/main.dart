@@ -1,13 +1,18 @@
+import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:bottom_bar_page_transition/bottom_bar_page_transition.dart';
 
 import 'package:rfid_reader/pages/scan_devices.dart';
 import 'package:rfid_reader/pages/all_devices.dart';
 import 'package:rfid_reader/providers/globalstate.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(
     MultiProvider(

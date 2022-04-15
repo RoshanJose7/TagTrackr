@@ -15,13 +15,13 @@ class ScanDevicesPage extends StatefulWidget {
 class _ScanDevicesPageState extends State<ScanDevicesPage> {
   bool _scanMode = false;
   final _controller = TextEditingController(text: "");
-  final List<DeviceData> _devices = [];
+  final List _devices = [];
 
   @override
   Widget build(BuildContext context) {
     final _theme = Theme.of(context);
     final _media = MediaQuery.of(context);
-    final _globalstate = Provider.of<GlobalStateProvider>(context);
+    final _globalState = Provider.of<GlobalStateProvider>(context);
 
     return SingleChildScrollView(
       child: Padding(
@@ -40,12 +40,12 @@ class _ScanDevicesPageState extends State<ScanDevicesPage> {
                     if (val.endsWith("\n")) {
                       val = val.substring(0, val.length - 1);
 
-                      setState(() {
-                        _devices.add(_globalstate.getDevice(val));
+                      setState(() async {
+                        _devices.add(await _globalState.getDevice(val));
                         _controller.clear();
                       });
 
-                      _globalstate.getDevice(val);
+                      _globalState.getDevice(val);
                     }
                   },
                   maxLines: null,
