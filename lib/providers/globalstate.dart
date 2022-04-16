@@ -7,13 +7,35 @@ import 'package:rfid_reader/models/device.dart';
 
 class GlobalStateProvider extends ChangeNotifier {
   final storageRef = FirebaseStorage.instance.ref();
-  CollectionReference devs = FirebaseFirestore.instance.collection('devices');
+  final CollectionReference devicesCollection = FirebaseFirestore.instance.collection('devices');
 
   final List<DeviceData> _devices = [];
-  final CollectionReference deviceCollection =
-      FirebaseFirestore.instance.collection('devices');
   final Stream<QuerySnapshot> devicesStream =
       FirebaseFirestore.instance.collection('devices').snapshots();
+
+  List<DeviceData> _deviceDataFromSnapshot(QuerySnapshot snapshot) {
+    List<DeviceData> temp = [];
+
+    for(var d in snapshot.docs) {
+      temp.add(DeviceData(
+        id: d['id'],
+        name: d['name'],
+        images: d['images'],
+        position: GeoPosition(
+          latitude: d['position']['latitude'],
+          longitude: d['position']['longitude'],
+          timestamp: DateTime.parse(d['position']['timestamp'].toDate().toString()),
+        ),
+        location: d['location'],
+      ));
+    }
+
+    return temp;
+  }
+
+  Stream<List<DeviceData>> get deviceCollectionStream {
+    return devicesCollection.snapshots().map(_deviceDataFromSnapshot);
+  }
 
   List<DeviceData> get devices => _devices;
 
@@ -28,7 +50,7 @@ class GlobalStateProvider extends ChangeNotifier {
   }
 
   Future<QueryDocumentSnapshot<Object?>> getDevice(String id) async {
-    final dev = await devs.where('id', isEqualTo: id).get();
+    final dev = await devicesCollection.where('id', isEqualTo: id).get();
     return dev.docs[0];
   }
 
@@ -57,7 +79,7 @@ class GlobalStateProvider extends ChangeNotifier {
       images.add(downloadUrl);
     }
 
-    await deviceCollection
+    await devicesCollection
         .add({
           'id': device.id,
           'name': device.name,
@@ -79,7 +101,7 @@ class GlobalStateProvider extends ChangeNotifier {
       await storageRef.child("images/" + imgPath).delete();
     }
 
-    await devs.doc(id).delete().then((value) => print("Device Deleted"))
+    await devicesCollection.doc(id).delete().then((value) => print("Device Deleted"))
         .catchError((error) => print("Failed to delete device: $error"));
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:rfid_reader/models/device.dart';
 import 'package:rfid_reader/providers/globalstate.dart';
 import 'package:rfid_reader/widgets/device_card.dart';
 

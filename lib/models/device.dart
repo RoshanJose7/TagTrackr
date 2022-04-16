@@ -13,7 +13,7 @@ class GeoPosition {
 class DeviceData {
   final String id;
   final String name;
-  final List<String> images;
+  final List images;
   final GeoPosition position;
   final String location;
 
