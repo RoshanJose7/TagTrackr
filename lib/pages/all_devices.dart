@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:rfid_reader/models/device.dart';
+import 'package:rfid_reader/pages/search_page.dart';
 
 import 'package:rfid_reader/utils/getfiles.dart';
 import 'package:rfid_reader/utils/permission.dart';
@@ -77,6 +78,19 @@ class _AllDevicesPageState extends State<AllDevicesPage> {
               Row(
                 children: [
                   IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => SearchPage(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.search),
+                    color: Colors.blueAccent,
+                    splashColor: Colors.grey[400],
+                  ),
+                  const SizedBox(width: 10),
+                  IconButton(
                     onPressed: _add,
                     icon: const Icon(Icons.add),
                     color: Colors.blueAccent,
@@ -96,7 +110,7 @@ class _AllDevicesPageState extends State<AllDevicesPage> {
           Padding(
             padding: const EdgeInsets.all(10),
             child: SizedBox(
-              height: _media.size.height * 0.7,
+              height: _media.size.height * 0.79,
               child: StreamBuilder<List<DeviceData>>(
                 stream: _globalstate.deviceCollectionStream,
                 builder: (ctx, AsyncSnapshot<List<DeviceData>> snapshot) {

@@ -18,9 +18,12 @@ class AddDevicePage extends StatefulWidget {
 
 class _AddDevicePageState extends State<AddDevicePage> {
   final _formKey = GlobalKey<FormState>();
+  bool idTaken = false;
+
   String _id = "";
   String _name = "";
   String _location = "";
+
   final List<String> _files = [];
 
   @override
@@ -43,7 +46,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
                     return "Enter a valid id";
                   }
 
-                  if (_globalState.duplicateDeviceCheck(val)) {
+                  if (idTaken) {
                     return "Device ID already taken";
                   }
 
@@ -184,6 +187,18 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
             Position pos = await determineLocation();
             _formKey.currentState?.save();
+
+            bool status = await _globalState.duplicateDeviceCheck(_id);
+
+            setState(() {
+              idTaken = status;
+            });
+
+            if(idTaken) {
+              print(idTaken);
+              _formKey.currentState?.validate();
+              return;
+            }
 
             DeviceData newDevice =
                 DeviceData(id: _id, name: _name, location: _location, position: GeoPosition(

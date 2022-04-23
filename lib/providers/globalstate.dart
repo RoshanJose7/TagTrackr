@@ -7,7 +7,8 @@ import 'package:rfid_reader/models/device.dart';
 
 class GlobalStateProvider extends ChangeNotifier {
   final storageRef = FirebaseStorage.instance.ref();
-  final CollectionReference devicesCollection = FirebaseFirestore.instance.collection('devices');
+  final CollectionReference devicesCollection =
+      FirebaseFirestore.instance.collection('devices');
 
   final List<DeviceData> _devices = [];
   final Stream<QuerySnapshot> devicesStream =
@@ -16,7 +17,7 @@ class GlobalStateProvider extends ChangeNotifier {
   List<DeviceData> _deviceDataFromSnapshot(QuerySnapshot snapshot) {
     List<DeviceData> temp = [];
 
-    for(var d in snapshot.docs) {
+    for (var d in snapshot.docs) {
       temp.add(DeviceData(
         id: d['id'],
         name: d['name'],
@@ -24,7 +25,8 @@ class GlobalStateProvider extends ChangeNotifier {
         position: GeoPosition(
           latitude: d['position']['latitude'],
           longitude: d['position']['longitude'],
-          timestamp: DateTime.parse(d['position']['timestamp'].toDate().toString()),
+          timestamp:
+              DateTime.parse(d['position']['timestamp'].toDate().toString()),
         ),
         location: d['location'],
       ));
@@ -49,17 +51,30 @@ class GlobalStateProvider extends ChangeNotifier {
     return data;
   }
 
-  Future<QueryDocumentSnapshot<Object?>> getDevice(String id) async {
+  Future<DeviceData> getDevice(String id) async {
     final dev = await devicesCollection.where('id', isEqualTo: id).get();
-    return dev.docs[0];
+    return _deviceDataFromSnapshot(dev).first;
   }
 
-  bool duplicateDeviceCheck(String id) {
-    for (DeviceData dev in _devices) {
-      if (dev.id == id) {
-        notifyListeners();
-        return true;
-      }
+  Future<List<DeviceData>> queryData(
+      String queryCategory, String queryString) async {
+    var devs = await devicesCollection
+        .where(queryCategory, isGreaterThanOrEqualTo: queryString)
+        .where(queryCategory, isLessThanOrEqualTo: queryString + '\uf8ff')
+        .get();
+
+    notifyListeners();
+    return _deviceDataFromSnapshot(devs);
+  }
+
+  Future<bool> duplicateDeviceCheck(String id) async {
+    var devRef = await devicesCollection.where('id', isEqualTo: id).get();
+
+    try {
+      if (devRef.docs[0].exists) return true;
+    } catch (err) {
+      print(err);
+      return false;
     }
 
     notifyListeners();
@@ -71,7 +86,8 @@ class GlobalStateProvider extends ChangeNotifier {
     List<String> images = [];
 
     for (var image in device.images) {
-      final Reference imgRef = storageRef.child("images/" + image.split("/").last);
+      final Reference imgRef =
+          storageRef.child("images/" + image.split("/").last);
       final task = imgRef.putFile(File(image));
 
       final snapshot = await task.whenComplete(() {});
@@ -101,7 +117,12 @@ class GlobalStateProvider extends ChangeNotifier {
       await storageRef.child("images/" + imgPath).delete();
     }
 
-    await devicesCollection.doc(id).delete().then((value) => print("Device Deleted"))
-        .catchError((error) => print("Failed to delete device: $error"));
+    var doc = await devicesCollection.where('id', isEqualTo: id).get();
+
+    await doc.docs[0].reference.delete().catchError((err) {
+      print(err);
+    });
+
+    notifyListeners();
   }
 }

@@ -125,13 +125,13 @@ class DeviceCard extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "lat: ${device.position.latitude}",
+                                "lat: ${device.position.latitude.toStringAsFixed(3)}",
                                 style: const TextStyle(
                                   color: Colors.black54,
                                 ),
                               ),
                               Text(
-                                "long: ${device.position.longitude}",
+                                "long: ${device.position.longitude.toStringAsFixed(3)}",
                                 style: const TextStyle(
                                   color: Colors.black54,
                                 ),

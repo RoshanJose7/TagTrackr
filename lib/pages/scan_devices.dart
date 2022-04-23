@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rfid_reader/models/device.dart';
 
 import 'package:rfid_reader/providers/globalstate.dart';
 import 'package:rfid_reader/widgets/device_card.dart';
@@ -14,13 +15,21 @@ class ScanDevicesPage extends StatefulWidget {
 class _ScanDevicesPageState extends State<ScanDevicesPage> {
   bool _scanMode = false;
   final _controller = TextEditingController(text: "");
-  final List _devices = [];
+  final List<DeviceData> _devices = [];
 
   @override
   Widget build(BuildContext context) {
     final _theme = Theme.of(context);
     final _media = MediaQuery.of(context);
     final _globalState = Provider.of<GlobalStateProvider>(context);
+
+    Future<void> getData(val) async {
+      DeviceData dev = await _globalState.getDevice(val);
+
+      setState(() {
+        _devices.add(dev);
+      });
+    }
 
     return SingleChildScrollView(
       child: Padding(
@@ -39,8 +48,8 @@ class _ScanDevicesPageState extends State<ScanDevicesPage> {
                     if (val.endsWith("\n")) {
                       val = val.substring(0, val.length - 1);
 
-                      setState(() async {
-                        _devices.add(await _globalState.getDevice(val));
+                      setState(() {
+                        getData(val);
                         _controller.clear();
                       });
 
@@ -84,8 +93,7 @@ class _ScanDevicesPageState extends State<ScanDevicesPage> {
                       ),
               ],
             ),
-            SizedBox(
-              height: _media.size.height * 0.8,
+            Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: _devices.isEmpty
@@ -94,7 +102,8 @@ class _ScanDevicesPageState extends State<ScanDevicesPage> {
                       )
                     : ListView.builder(
                         itemCount: _devices.length,
-                        itemBuilder: (ctx, idx) => DeviceCard(device: _devices[idx]),
+                        itemBuilder: (ctx, idx) =>
+                            DeviceCard(device: _devices[idx]),
                       ),
               ),
             ),
