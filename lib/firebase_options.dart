@@ -43,10 +43,10 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAH-jCoSiWyanwtTfMH13VvSHBgMrz86Ws',
-    appId: '1:674034350224:android:9a4e674f9597dad1a48015',
-    messagingSenderId: '674034350224',
-    projectId: 'rfid-reader-d0cd0',
-    storageBucket: 'rfid-reader-d0cd0.appspot.com',
+    apiKey: 'API_KEY',
+    appId: 'APP_ID',
+    messagingSenderId: 'SENDER_ID',
+    projectId: 'PROJECT_ID',
+    storageBucket: 'STORAGE_BUCKET',
   );
 }
